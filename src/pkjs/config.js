@@ -56,6 +56,30 @@ module.exports = [
         "defaultValue": "0xFF0000",
         "label": "Second Hand Color"
       }
+      /*{
+        "type": "color",
+        "messageKey": "COLOR_DIGITTIME",
+        "defaultValue": "0xFFFFFF",
+        "label": "Digit Time Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "COLOR_DATE",
+        "defaultValue": "0xFFFFFF",
+        "label": "Date Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "COLOR_TEMPERATURE",
+        "defaultValue": "0xFFFFFF",
+        "label": "Temperature Color"
+      },
+      {
+        "type": "color",
+        "messageKey": "COLOR_BATTERY",
+        "defaultValue": "0xFFFFFF",
+        "label": "Battery Color"
+      }*/
     ]
   },
   {

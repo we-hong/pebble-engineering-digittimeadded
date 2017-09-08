@@ -26,7 +26,11 @@
             "COLOR_MINUTE_HAND",
             "COLOR_SECOND_HAND",
             "SHOW_DIGITTIME",
-            "SHOW_BATTERY"
+            "SHOW_BATTERY",
+            "COLOR_DIGITTIME",
+            "COLOR_DATE",
+            "COLOR_TEMPERATURE",
+            "COLOR_BATTERY"
         ],
         "projectType": "native",
         "resources": {
