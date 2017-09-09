@@ -433,6 +433,10 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 	// dot in the middle
 	graphics_context_set_fill_color(ctx, gcolor_second_hand);
 	graphics_fill_circle(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), 4);
+  
+  //graphics_context_set_stroke_color(ctx, gcolor_hour_marks);
+	//graphics_context_set_stroke_width(ctx, 5);
+  //graphics_draw_line(ctx, GPoint(bounds.size.w / 2, bounds.size.h / 2), GPoint(105, 20));
 }
 
 char *uppercase(char *str) {
@@ -458,7 +462,7 @@ static void date_update_proc(Layer *layer, GContext *ctx) {
 	//graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(80, 75, 40 + offset, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
   //graphics_draw_text(ctx, s_date_buffer_1, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(90, 145, 50, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
   graphics_draw_text(ctx, s_date_buffer_2, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(5, 145, 50, 14), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
-  graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(100, 145, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+  graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(99, 145, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 #else
  	int offset = !b_show_numbers * 10;
   strftime(s_date_buffer, sizeof(s_date_buffer), "%a %d", s_tick_time);
@@ -565,7 +569,7 @@ static void bot_bg_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_stroke_color(ctx, GColorWhite);
 #endif
 	graphics_context_set_stroke_width(ctx, 1);
-  graphics_draw_round_rect(ctx, GRect(2, 149, 141, 17), 2);
+  graphics_draw_round_rect(ctx, GRect(2, 149, 140, 17), 2);
 }
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
