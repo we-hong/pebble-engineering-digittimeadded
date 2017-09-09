@@ -3,11 +3,11 @@
 #include "engineering.h"
 
 static Window *window;
-static Layer *s_simple_bg_layer, *s_hands_layer, *s_date_layer, *s_temp_layer, *s_digittime_layer, *s_battery_layer;
+static Layer *s_simple_bg_layer, *s_hands_layer, *s_date_layer, /**s_temp_layer,*/ *s_connect_layer, *s_digittime_layer, *s_battery_layer, *s_bot_bg_layer;
 //static TextLayer *s_day_label, *s_num_label;
 
 static GPath *s_minute_arrow, *s_hour_arrow;
-static char s_date_buffer[7], s_temp_buffer[5], s_digittime_buffer[8], s_battery_buffer[4];
+static char s_date_buffer[7], s_date_buffer_2[4], /*s_temp_buffer[5],*/ s_digittime_buffer[8], s_battery_buffer[4];
 static int s_battery_level;
 
 struct tm *s_tick_time;
@@ -16,8 +16,8 @@ struct tm *s_tick_time;
 //static uint8_t s_sync_buffer[64];
 
 static GColor gcolor_background, gcolor_hour_marks, gcolor_minute_marks, gcolor_numbers, gcolor_hour_hand, gcolor_minute_hand, gcolor_second_hand;
-static GColor gcolor_digittime, gcolor_date, gcolor_temperature, gcolor_battery;
-static bool b_show_numbers, b_show_temperature, b_show_date, b_show_second_hand, b_show_digittime, b_show_battery;
+static GColor gcolor_digittime, gcolor_date, /*gcolor_temperature,*/ gcolor_battery;
+static bool b_show_numbers, /*b_show_temperature,*/ b_show_date, b_show_second_hand, b_show_digittime, b_show_battery;
 
 static void load_persisted_values() {
 	// SHOW_NUMBERS
@@ -31,9 +31,9 @@ static void load_persisted_values() {
 	}
 
 	// SHOW_TEMPERATURE
-	if (persist_exists(MESSAGE_KEY_SHOW_TEMPERATURE)) {
+	/*if (persist_exists(MESSAGE_KEY_SHOW_TEMPERATURE)) {
 	  b_show_temperature = persist_read_int(MESSAGE_KEY_SHOW_TEMPERATURE);
-	}
+	}*/
 
 	// SHOW_DATE
 	if (persist_exists(MESSAGE_KEY_SHOW_DATE)) {
@@ -100,7 +100,7 @@ static void load_persisted_values() {
 	if (persist_exists(MESSAGE_KEY_COLOR_DIGITTIME)) {
 		int color_hex = persist_read_int(MESSAGE_KEY_COLOR_DIGITTIME);
 		gcolor_digittime = GColorFromHEX(color_hex);
-    APP_LOG(APP_LOG_LEVEL_INFO, "digittime color: %d", color_hex);
+    //APP_LOG(APP_LOG_LEVEL_INFO, "digittime color: %d", color_hex);
 	}
   
   // COLOR_DATE
@@ -110,10 +110,10 @@ static void load_persisted_values() {
 	}
   
   // COLOR_TEMPERATURE
-	if (persist_exists(MESSAGE_KEY_COLOR_TEMPERATURE)) {
+	/*if (persist_exists(MESSAGE_KEY_COLOR_TEMPERATURE)) {
 		int color_hex = persist_read_int(MESSAGE_KEY_COLOR_TEMPERATURE);
 		gcolor_temperature = GColorFromHEX(color_hex);
-	}
+	}*/
   
   // COLOR_BATTERY
 	if (persist_exists(MESSAGE_KEY_COLOR_BATTERY)) {
@@ -123,11 +123,11 @@ static void load_persisted_values() {
 }
 
 static void inbox_received_handler(DictionaryIterator *iter, void *context) {
- 	Tuple *temperature_t = dict_find(iter, MESSAGE_KEY_TEMPERATURE);
+ 	/*Tuple *temperature_t = dict_find(iter, MESSAGE_KEY_TEMPERATURE);
  	if(temperature_t) {
 		snprintf(s_temp_buffer, 5, "%d°", temperature_t->value->int16);
 		//APP_LOG(APP_LOG_LEVEL_INFO, s_temp_buffer);
- 	}
+ 	}*/
 
 	Tuple *show_numbers_t = dict_find(iter, MESSAGE_KEY_SHOW_NUMBERS);
 	if(show_numbers_t) {
@@ -144,13 +144,13 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     layer_set_hidden(s_date_layer, !b_show_date);
  	}
 
-	Tuple *show_temperature_t = dict_find(iter, MESSAGE_KEY_SHOW_TEMPERATURE);
+	/*Tuple *show_temperature_t = dict_find(iter, MESSAGE_KEY_SHOW_TEMPERATURE);
 	if(show_temperature_t) {
 		//APP_LOG(APP_LOG_LEVEL_INFO, "Show temperature %d", show_temperature_t->value->uint8);
  		b_show_temperature = show_temperature_t->value->uint8;
 		persist_write_int(MESSAGE_KEY_SHOW_TEMPERATURE, b_show_temperature);
     layer_set_hidden(s_temp_layer, !b_show_temperature);
- 	}
+ 	}*/
   
   Tuple *show_digittime_t = dict_find(iter, MESSAGE_KEY_SHOW_DIGITTIME);
 	if(show_digittime_t) {
@@ -226,7 +226,7 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
   
   Tuple *color_digittime_t = dict_find(iter, MESSAGE_KEY_COLOR_DIGITTIME);
 	if(color_digittime_t) {
-		APP_LOG(APP_LOG_LEVEL_INFO, "digittime color: %lu", color_second_hand_t->value->int32);
+		//APP_LOG(APP_LOG_LEVEL_INFO, "digittime color: %lu", color_second_hand_t->value->int32);
  		gcolor_digittime = GColorFromHEX(color_digittime_t->value->int32);
 		persist_write_int(MESSAGE_KEY_COLOR_DIGITTIME, color_digittime_t->value->int32);
     layer_mark_dirty(s_digittime_layer);
@@ -240,12 +240,12 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
     layer_mark_dirty(s_date_layer);
  	}
   
-  Tuple *color_temperature_t = dict_find(iter, MESSAGE_KEY_COLOR_TEMPERATURE);
+  /*Tuple *color_temperature_t = dict_find(iter, MESSAGE_KEY_COLOR_TEMPERATURE);
 	if(color_temperature_t) {
  		gcolor_temperature = GColorFromHEX(color_temperature_t->value->int32);
 		persist_write_int(MESSAGE_KEY_COLOR_TEMPERATURE, color_temperature_t->value->int32);
     layer_mark_dirty(s_temp_layer);
- 	}
+ 	}*/
   
   Tuple *color_battery_t = dict_find(iter, MESSAGE_KEY_COLOR_BATTERY);
 	if(color_battery_t) {
@@ -283,6 +283,8 @@ static int32_t get_angle_for_minute(int hour) {
 
 static void bg_update_proc(Layer *layer, GContext *ctx) {
 	GRect bounds = layer_get_bounds(layer);
+  //APP_LOG(APP_LOG_LEVEL_INFO, "rect: %d, %d, %d, %d", 0/*bounds.x*/, 0/*bounds.y*/, bounds.size.w, bounds.size.h);
+  //bounds.size.h -= 24;
 	GRect frame = grect_inset(bounds, GEdgeInsets(4 * INSET));
 	GRect inner_hour_frame = grect_inset(bounds, GEdgeInsets((4 * INSET) + 5));
 	GRect inner_minute_frame = grect_inset(bounds, GEdgeInsets((4 * INSET) + 4));
@@ -309,13 +311,13 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 			graphics_draw_line(ctx, p0, p1);
 		}
 	}
-	
+	  
 	// numbers
 	if (b_show_numbers) {
 		graphics_context_set_text_color(ctx, gcolor_numbers);
 		
 #ifdef PBL_RECT
-		graphics_draw_text(ctx, "12", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(62, 10, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+		/*graphics_draw_text(ctx, "12", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(62, 9, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 		graphics_draw_text(ctx, "1", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(86, 19, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 		graphics_draw_text(ctx, "2", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(108, 40, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 		graphics_draw_text(ctx, "3", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(117, 66, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
@@ -326,7 +328,20 @@ static void bg_update_proc(Layer *layer, GContext *ctx) {
 		graphics_draw_text(ctx, "8", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(16, 95, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 		graphics_draw_text(ctx, "9", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(7, 66, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 		graphics_draw_text(ctx, "10", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(14, 40, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
-		graphics_draw_text(ctx, "11", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(34, 19, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+		graphics_draw_text(ctx, "11", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(34, 19, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);*/
+    
+    graphics_draw_text(ctx, "12", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(62, -1, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "1", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(86, 9, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+		graphics_draw_text(ctx, "2", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(108, 28, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+		graphics_draw_text(ctx, "3", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(117, 56, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+		graphics_draw_text(ctx, "4", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(107, 84, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+		graphics_draw_text(ctx, "5", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(85, 105, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+		graphics_draw_text(ctx, "6", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(62, 113, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+		graphics_draw_text(ctx, "7", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(39, 105, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+		graphics_draw_text(ctx, "8", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(16, 84, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+		graphics_draw_text(ctx, "9", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(7, 56, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+		graphics_draw_text(ctx, "10", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(14, 28, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+		graphics_draw_text(ctx, "11", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(34, 9, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 #else
 		graphics_draw_text(ctx, "12", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(80, 10, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 		graphics_draw_text(ctx, "1", fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(107, 20, 20, 20), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
@@ -433,16 +448,21 @@ char *uppercase(char *str) {
 static void date_update_proc(Layer *layer, GContext *ctx) {
 	//time_t now = time(NULL);
 	//struct tm *t = localtime(&now);
-
-	strftime(s_date_buffer, sizeof(s_date_buffer), "%a %d", s_tick_time);
-	uppercase(s_date_buffer);
   
 	graphics_context_set_text_color(ctx, gcolor_date);
-	int offset = !b_show_numbers * 10;
+
 #ifdef PBL_RECT
+  strftime(s_date_buffer, sizeof(s_date_buffer), "%m%d", s_tick_time);
+  strftime(s_date_buffer_2, sizeof(s_date_buffer_2), "%a", s_tick_time);
+	uppercase(s_date_buffer_2);
 	//graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_14), GRect(80, 75, 40 + offset, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(95, 0, 50 + offset, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  //graphics_draw_text(ctx, s_date_buffer_1, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(90, 145, 50, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+  graphics_draw_text(ctx, s_date_buffer_2, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(5, 145, 50, 14), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+  graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(100, 145, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 #else
+ 	int offset = !b_show_numbers * 10;
+  strftime(s_date_buffer, sizeof(s_date_buffer), "%a %d", s_tick_time);
+	uppercase(s_date_buffer);
 	graphics_draw_text(ctx, s_date_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(100, 78, 45 + offset, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 #endif
 }
@@ -456,13 +476,14 @@ static void dt_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_text_color(ctx, gcolor_digittime);
 #ifdef PBL_RECT
   //graphics_draw_text(ctx, s_digittime_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(53, 93, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-  graphics_draw_text(ctx, s_digittime_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(2, 0, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  //graphics_draw_text(ctx, s_digittime_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(2, 0, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, s_digittime_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(52, 145, 40, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 #else
-  graphics_draw_text(ctx, s_digittime_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(66, 110, 50, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, s_digittime_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD), GRect(66, 100, 50, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 #endif
 }
 
-static void temp_update_proc(Layer *layer, GContext *ctx) {
+/*static void temp_update_proc(Layer *layer, GContext *ctx) {
   graphics_context_set_text_color(ctx, gcolor_temperature);
 	int offset = !b_show_numbers * 10;
 #ifdef PBL_RECT
@@ -470,7 +491,7 @@ static void temp_update_proc(Layer *layer, GContext *ctx) {
 #else
 	graphics_draw_text(ctx, s_temp_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(40 - offset, 78, 40 + offset, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 #endif
-}
+}*/
 
 char* itoa(int i, char b[]){
     char const digit[] = "0123456789";
@@ -499,9 +520,9 @@ static void battery_update_proc(Layer *layer, GContext *ctx) {
   
 #ifdef PBL_RECT
   //graphics_draw_text(ctx, s_battery_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(110, 8, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
-  graphics_draw_text(ctx, s_battery_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD), GRect(110, 145, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
+  graphics_draw_text(ctx, s_battery_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(110, 0, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentRight, NULL);
 #else
-  graphics_draw_text(ctx, s_battery_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(75, 50, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, s_battery_buffer, fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(55, 78, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
 #endif
 }
 
@@ -511,6 +532,40 @@ static void battery_callback(BatteryChargeState state) {
   if (b_show_battery) {
     layer_mark_dirty(s_battery_layer);
   }
+}
+
+static void connect_update_proc(Layer *layer, GContext *ctx) {
+#ifdef PBL_COLOR
+  graphics_context_set_text_color(ctx, GColorRed);
+#else
+  graphics_context_set_text_color(ctx, gcolor_battery);
+#endif
+  
+#ifdef PBL_RECT
+  graphics_draw_text(ctx, "X", fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(7, 0, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentLeft, NULL);
+#else
+  graphics_draw_text(ctx, "X", fonts_get_system_font(FONT_KEY_GOTHIC_18), GRect(75, 45, 30, 14), GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+#endif
+}
+
+static void bluetooth_callback(bool connected) {
+  // Show icon if disconnected
+  layer_set_hidden(s_connect_layer, connected);
+
+  if(!connected) {
+    // Issue a vibrating alert
+    vibes_double_pulse();
+  }
+}
+
+static void bot_bg_proc(Layer *layer, GContext *ctx) {
+#ifdef PBL_COLOR
+ 	graphics_context_set_stroke_color(ctx, GColorDarkGray);
+#else
+  graphics_context_set_stroke_color(ctx, GColorWhite);
+#endif
+	graphics_context_set_stroke_width(ctx, 1);
+  graphics_draw_round_rect(ctx, GRect(2, 149, 141, 17), 2);
 }
 
 static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -527,9 +582,9 @@ static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
   if (b_show_digittime && s_tick_time->tm_sec == 00) {
     layer_mark_dirty(s_digittime_layer);
   }
- 	if (b_show_temperature) {
+ 	/*if (b_show_temperature) {
     layer_mark_dirty(s_temp_layer);
-  }
+  }*/
 }
 
 /*static void window_load(Window *window) {
@@ -560,32 +615,47 @@ static void handle_second_tick(struct tm *tick_time, TimeUnits units_changed) {
 static void window_load(Window *window) {
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
+  GRect ubounds = bounds;
+#ifdef PBL_RECT
+  ubounds.origin.y += 1;
+  ubounds.size.h -= 22;
+#endif
 
-	s_simple_bg_layer = layer_create(bounds);
+	s_simple_bg_layer = layer_create(ubounds);
 	layer_set_update_proc(s_simple_bg_layer, bg_update_proc);
 	layer_add_child(window_layer, s_simple_bg_layer);
 
 	window_set_background_color(window, gcolor_background);
-  
-	s_date_layer = layer_create(bounds);
+
+ 	s_date_layer = layer_create(bounds);
 	layer_set_update_proc(s_date_layer, date_update_proc);
 	layer_add_child(window_layer, s_date_layer);
-
+  
   s_digittime_layer = layer_create(bounds);
   layer_set_update_proc(s_digittime_layer, dt_update_proc);
   layer_add_child(window_layer, s_digittime_layer);
   
-  s_temp_layer = layer_create(bounds);
+  /*s_temp_layer = layer_create(bounds);
 	layer_set_update_proc(s_temp_layer, temp_update_proc);
-	layer_add_child(window_layer, s_temp_layer);
+	layer_add_child(window_layer, s_temp_layer);*/
   
   s_battery_layer = layer_create(bounds);
 	layer_set_update_proc(s_battery_layer, battery_update_proc);
 	layer_add_child(window_layer, s_battery_layer);
   
-  s_hands_layer = layer_create(bounds);
+  s_connect_layer = layer_create(bounds);
+	layer_set_update_proc(s_connect_layer, connect_update_proc);
+	layer_add_child(window_layer, s_connect_layer);
+  
+  s_hands_layer = layer_create(ubounds);
 	layer_set_update_proc(s_hands_layer, hands_update_proc);
 	layer_add_child(window_layer, s_hands_layer);
+
+#ifdef PBL_RECT
+  s_bot_bg_layer = layer_create(bounds);
+  layer_set_update_proc(s_bot_bg_layer, bot_bg_proc);
+  layer_add_child(window_layer, s_bot_bg_layer);
+#endif
   
 	load_persisted_values();
   
@@ -596,9 +666,11 @@ static void window_unload(Window *window) {
 	layer_destroy(s_simple_bg_layer);
 	layer_destroy(s_date_layer);
   layer_destroy(s_digittime_layer);
-  layer_destroy(s_temp_layer);
+  //layer_destroy(s_temp_layer);
   layer_destroy(s_battery_layer);
+  layer_destroy(s_connect_layer);
 	layer_destroy(s_hands_layer);
+  layer_destroy(s_bot_bg_layer);
   
 	//text_layer_destroy(s_day_label);
 	//text_layer_destroy(s_num_label);
@@ -618,7 +690,7 @@ static void init() {
 		gcolor_second_hand = GColorRed;
     gcolor_digittime = GColorLightGray;
     gcolor_date = GColorLightGray;
-    gcolor_temperature = GColorLightGray;
+    //gcolor_temperature = GColorLightGray;
     gcolor_battery = GColorLightGray;
 	#else
 		gcolor_hour_marks = GColorWhite;
@@ -628,20 +700,25 @@ static void init() {
 		gcolor_second_hand = GColorWhite;
     gcolor_digittime = GColorWhite;
     gcolor_date = GColorWhite;
-    gcolor_temperature = GColorWhite;
+    //gcolor_temperature = GColorWhite;
     gcolor_battery = GColorWhite;
 	#endif
   
 	b_show_numbers = true;
 	b_show_second_hand = true;
 	b_show_date = true;
-	b_show_temperature = true;
+	//b_show_temperature = true;
   b_show_digittime = true;
   b_show_battery = true;
   
   // Register for battery level updates
   battery_state_service_subscribe(battery_callback);
-    
+  
+  // Register for Bluetooth connection updates
+  connection_service_subscribe((ConnectionHandlers) {
+    .pebble_app_connection_handler = bluetooth_callback
+  });
+  
   // Register with TickTimerService
 	tick_timer_service_subscribe(SECOND_UNIT, handle_second_tick);
   
@@ -652,8 +729,11 @@ static void init() {
 	});
 	window_stack_push(window, true);
 
-	s_temp_buffer[0] = '\0';
+	//s_temp_buffer[0] = '\0';
 	s_date_buffer[0] = '\0';
+  s_date_buffer_2[0] = '\0';
+  s_digittime_buffer[0] = '\0';
+  s_battery_buffer[0] = '\0';
 
 	// init hand paths
 	s_minute_arrow = gpath_create(&MINUTE_HAND_POINTS);
@@ -661,6 +741,9 @@ static void init() {
 
 	Layer *window_layer = window_get_root_layer(window);
 	GRect bounds = layer_get_bounds(window_layer);
+#ifdef PBL_RECT
+  bounds.size.h -= 24;
+#endif
 	GPoint center = grect_center_point(&bounds);
 	gpath_move_to(s_minute_arrow, center);
 	gpath_move_to(s_hour_arrow, center);
@@ -671,6 +754,9 @@ static void init() {
   
   // Ensure battery level is displayed from the start
   battery_callback(battery_state_service_peek());
+  
+  // Show the correct state of the BT connection from the start
+  bluetooth_callback(connection_service_peek_pebble_app_connection());
 
 	app_message_register_inbox_received(inbox_received_handler);
 	app_message_open(128, 128);
@@ -689,4 +775,3 @@ int main() {
 	app_event_loop();
 	deinit();
 }
-

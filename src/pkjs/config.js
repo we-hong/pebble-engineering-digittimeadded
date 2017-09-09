@@ -107,12 +107,12 @@ module.exports = [
         "label": "Date",
         "defaultValue": true
       },
-      {
+      /*{
         "type": "toggle",
         "messageKey": "SHOW_TEMPERATURE",
         "label": "Temperature",
         "defaultValue": false
-      },
+      },*/
       {
         "type": "toggle",
         "messageKey": "SHOW_DIGITTIME",
