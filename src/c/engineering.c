@@ -371,14 +371,7 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
   int32_t second_angle = TRIG_MAX_ANGLE * s_tick_time->tm_sec / 60;
 	int32_t second_angle_tail = TRIG_MAX_ANGLE * (s_tick_time->tm_sec + 30) / 60;
 
-	GPoint second_hand = {
-		.x = (int16_t)(sin_lookup(second_angle) * (int32_t)second_hand_length / TRIG_MAX_RATIO) + center.x,
-		.y = (int16_t)(-cos_lookup(second_angle) * (int32_t)second_hand_length / TRIG_MAX_RATIO) + center.y,
-	};
-	GPoint second_hand_tail = {
-		.x = (int16_t)(sin_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.x,
-		.y = (int16_t)(-cos_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.y,
-	};
+
 
 	// date
 	//if (b_show_date) {
@@ -425,6 +418,16 @@ static void hands_update_proc(Layer *layer, GContext *ctx) {
 
 	// second hand
 	if (b_show_second_hand) {
+    
+    GPoint second_hand = {
+		  .x = (int16_t)(sin_lookup(second_angle) * (int32_t)second_hand_length / TRIG_MAX_RATIO) + center.x,
+		  .y = (int16_t)(-cos_lookup(second_angle) * (int32_t)second_hand_length / TRIG_MAX_RATIO) + center.y,
+	  };
+	  GPoint second_hand_tail = {
+		  .x = (int16_t)(sin_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.x,
+		  .y = (int16_t)(-cos_lookup(second_angle_tail) * (int32_t)second_hand_tail_length / TRIG_MAX_RATIO) + center.y,
+	  };
+    
 		graphics_context_set_stroke_color(ctx, gcolor_second_hand);
 		graphics_draw_line(ctx, second_hand, center);
 		graphics_draw_line(ctx, second_hand_tail, center);
